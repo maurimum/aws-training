@@ -1,0 +1,44 @@
+service: serverless-dynamo-assignment
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+
+  iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:GetItem"
+          - "dynamodb:PutItem"
+        Resource:
+          - "arn:aws:dynamodb:${self:provider.region}:*:table/greetNames"
+
+functions:
+  
+  saveName:
+    handler: handler.saveName
+    events:
+      - http:
+          path: saveName
+          method: get              
+  wasGreet:
+    handler: handler.wasGreet
+    events:
+      - http:
+          path: wasGreet
+          method: get        
+         
+resources:
+  Resources:
+    GreetNamesTable:
+      Type: "AWS::DynamoDB::Table"
+      Properties:
+        AttributeDefinitions:
+        - AttributeName: "name"
+          AttributeType: "S"
+        KeySchema:
+        - AttributeName: "name"
+          KeyType: "HASH"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: "greetNames"
